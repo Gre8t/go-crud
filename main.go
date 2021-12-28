@@ -6,6 +6,7 @@ import(
 "encoding/json"
 "math/rand"
 "net/http"
+"strconv"
 "github.com/gorilla/mux")
 
 
@@ -28,17 +29,35 @@ type Director struct{
 	json.NewEncoder(w).Encode(movies)
  }
 
- func getMovie(){
+ func getMovie(w http.ResponseWriter, r *http.Request){
+	 w.Header().Set("Content-type", "application/json")
+	 params := mux.Vars(r)
+	 for _, item := range movies{
+		 if item.ID == params["id"]{
+			 json.NewEncoder(w).Encode(item)
+			 return 
+		 }
+	 }
+
+
 
  }
-func createMovie(){
+func createMovie(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-type", "application/json")
+	var movie Movie
+	_ = json.NewDecoder(r.Body).Decode(&movie)
+	movie.ID = strconv.Itoa(rand.Intn(10000))
+	movies = append(movies,movie)
+	json.NewEncoder(w).Encode(movie)
+
+	
 
 }
-func updateMovie(){
-
+func updateMovie(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-type", "application/json")
 }
 
-func deleteMovie(){
+func deleteMovie(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-type", "application/json")
 	params := mux.Vars(r)
 	for index, item := range movies {
@@ -47,7 +66,7 @@ func deleteMovie(){
 		}
 		break
 	}
-
+	json.NewEncoder(w).Encode(movies)
 
 }
  func main(){
